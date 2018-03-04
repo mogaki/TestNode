@@ -6,28 +6,51 @@
 
 var app = require('../app');
 var debug = require('debug')('jscafe-express:server');
-var http = require('http');
+//var http = require('http');
+
+//var socketIO = require('../routes/socketIO');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
+//var port = normalizePort(process.env.PORT || '3000');
+//app.set('port', port);
+
+var bbs = require('../routes/bbs');
+
+var http = require('http');
+
+// createServerの返り値を変数に入れる。
+var server = http.createServer(app);
+server.listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+
+// socket.ioのモジュールを読み込み、bbsのモジュールにsocketを渡しておく。
+var io = require('socket.io');
+var io = io.listen(server);
+
+/// io.socketsは接続された全てのsocketを指します。
+// on('connection')で接続した時のアクションを登録します。
+// ここでは、接続したsocketを受け取り、bbs.message関数に渡します。
+io.sockets.on('connection', function(socket) {
+    bbs.message(socket);
+  });
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+//var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+//server.listen(port);
+//server.on('error', onError);
+//server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
